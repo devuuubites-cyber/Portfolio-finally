@@ -4,8 +4,10 @@ import * as THREE from "three"
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js"
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js"
 
-const MODEL_URL = "/models/city/city.obj"
-const MTL_URL = "/models/city/city.mtl"
+// Asset URLs are absolute against import.meta.env.BASE_URL so they resolve
+// correctly under a GitHub Pages project subpath (e.g. /Portfolio-finally/).
+const MODEL_URL = `${import.meta.env.BASE_URL}models/city/city.obj`
+const MTL_URL = `${import.meta.env.BASE_URL}models/city/city.mtl`
 
 /**
  * Loads the gameboy-palette city street, then walks every material:
