@@ -5,21 +5,18 @@ import { CityModel } from "./CityModel"
 import { ScrollCamera } from "./ScrollCamera"
 import { SceneLoader } from "./SceneLoader"
 
-const FOG_NEAR = 220
-const FOG_FAR = 580
+// Fog distances are in the model's own units. The street geometry runs ~40
+// units long, so fog 5 → 35 lets the user see a few segments ahead while the
+// far end fades cleanly into ink.
+const FOG_NEAR = 5
+const FOG_FAR = 35
 
-/**
- * Fog distances are large here because the model lives at ~±320 unit scale.
- * The image spec (THREE.Fog("#0a0a0a", 8, 25)) assumes a 1-unit-per-meter
- * scene; we scale those distances proportionally to keep the cinematic
- * "scene end disappears into ink" feel the spec calls for.
- */
 export function SceneRoot() {
   return (
     <Canvas
       gl={{ antialias: false, powerPreference: "high-performance" }}
       dpr={[1, 1.5]}
-      camera={{ fov: 55, near: 1, far: 2000, position: [0, 90, 280] }}
+      camera={{ fov: 60, near: 0.05, far: 200, position: [1.7, 2.2, 5] }}
       onCreated={({ gl, scene }) => {
         gl.setClearColor("#050505", 1)
         gl.outputColorSpace = THREE.SRGBColorSpace

@@ -56,8 +56,8 @@ export function ScrollCamera() {
     // 3. Subtle camera breathing — applied after curve sampling, before lookAt.
     if (!REDUCED) {
       breathing.set(
-        Math.sin(time * 0.3) * 0.6,
-        Math.sin(time * 0.5) * 0.45,
+        Math.sin(time * 0.3) * 0.02,
+        Math.sin(time * 0.5) * 0.015,
         0,
       )
       pos.add(breathing)

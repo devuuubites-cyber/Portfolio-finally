@@ -18,9 +18,11 @@ export function SectionsLayer() {
         <h1 className="font-display text-[clamp(3rem,9vw,7.5rem)] leading-[0.95] tracking-tight text-bone text-balance">
           {data.name || "Unnamed"}
         </h1>
-        <p className="mt-6 font-display italic text-bone/60 text-lg md:text-xl">
-          A walk through what I make, what I&rsquo;ve done, and what I love.
-        </p>
+        {data.skills.length > 0 || data.accomplishments.length > 0 ? (
+          <p className="mt-6 font-display italic text-bone/60 text-lg md:text-xl">
+            {data.skills[0] ?? "—"} &middot; {data.hobbies[0] ?? "in motion"}
+          </p>
+        ) : null}
       </TextSection>
 
       <TextSection section={byId.skills} anchor="bottom-left">

@@ -6,13 +6,20 @@ import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js"
 
 // Asset URLs are absolute against import.meta.env.BASE_URL so they resolve
 // correctly under a GitHub Pages project subpath (e.g. /Portfolio-finally/).
-const MODEL_URL = `${import.meta.env.BASE_URL}models/city/city.obj`
-const MTL_URL = `${import.meta.env.BASE_URL}models/city/city.mtl`
+const BASE = import.meta.env.BASE_URL
+const MODEL_URL = `${BASE}models/city/city.obj`
+const MTL_URL = `${BASE}models/city/city.mtl`
 
 /**
- * Loads the gameboy-palette city street, then walks every material:
+ * Loads the gameboy-palette city street and walks every material:
  *  - swaps Phong → Basic so baked palette colors aren't muddied by lighting
  *  - applies NearestFilter so pixel-art textures stay crisp
+ *
+ * Note: useLoader.preload() is intentionally NOT called here. R3F's loader
+ * cache keys on [loader, ...urls] only — the extension callback isn't part
+ * of the key. Preloading the OBJ at module load would cache it WITHOUT
+ * setMaterials being called, leaving every mesh on white default materials
+ * forever (the texture-loss bug we just fixed).
  */
 export function CityModel(props: JSX.IntrinsicElements["group"]) {
   const materials = useLoader(MTLLoader, MTL_URL)
@@ -24,20 +31,31 @@ export function CityModel(props: JSX.IntrinsicElements["group"]) {
   const scene = useMemo(() => obj.clone(true), [obj])
 
   useEffect(() => {
+    let missingMaps = 0
+    let totalMats = 0
     scene.traverse((node) => {
       if (!(node instanceof THREE.Mesh)) return
       const mats = Array.isArray(node.material) ? node.material : [node.material]
-      const replaced = mats.map((m) => convertToBasic(m))
+      const replaced = mats.map((m) => {
+        totalMats++
+        const next = convertToBasic(m)
+        if (!(next as THREE.MeshBasicMaterial).map) missingMaps++
+        return next
+      })
       node.material = Array.isArray(node.material) ? replaced : replaced[0]
       node.frustumCulled = true
       node.castShadow = false
       node.receiveShadow = false
     })
+    if (import.meta.env.DEV && missingMaps > 0) {
+      console.warn(
+        `[CityModel] ${missingMaps}/${totalMats} materials have no .map — ` +
+          "check that all map_Kd PNGs in city.mtl exist under /public/models/city/.",
+      )
+    }
   }, [scene])
 
   return (
-    // Model space is roughly ±320 units; rotation/scale tuned so the long
-    // axis runs into -Z (the camera walks in that direction).
     <group {...props} dispose={null}>
       <primitive object={scene} />
     </group>
@@ -55,7 +73,6 @@ function pinTexture(tex: THREE.Texture | null | undefined) {
 }
 
 function convertToBasic(src: THREE.Material): THREE.Material {
-  // Already basic? Just pin its textures.
   if (src instanceof THREE.MeshBasicMaterial) {
     pinTexture(src.map)
     pinTexture(src.alphaMap)
@@ -78,6 +95,3 @@ function convertToBasic(src: THREE.Material): THREE.Material {
   src.dispose()
   return basic
 }
-
-useLoader.preload(MTLLoader, MTL_URL)
-useLoader.preload(OBJLoader, MODEL_URL)
