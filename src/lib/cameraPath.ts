@@ -3,24 +3,34 @@ import * as THREE from "three"
 /**
  * Camera waypoints in the model's own coordinate space.
  *
- * Per-material bbox of the OBJ confirms the walkable corridor:
- *   road:        X: -1.0 .. 4.47, Y: 0,        Z: -39 .. 1
- *   wall_panel:  X: -2.5 .. 5.97, Y: 0  .. 7,  Z: -39 .. 1
- *   ceiling:     X: -2.0 .. 8.32, Y: 0  .. 6.10
+ * The road is NOT straight — it curves to the right as it goes deeper.
+ * Per a per-Z-slice scan of the road material, the centerline shifts:
  *
- * Road centerline is X≈1.7. Walls clamp X to roughly [-1, 4.5] for safety.
- * The camera hugs the centerline (drifts 1.4..2.0) at eye-level Y=2.2 — well
- * under the 6.10 ceiling, well above the Y=0 road. Catmull-Rom would overshoot
- * a wider zigzag into the walls, so the X drift here is deliberately gentle.
+ *   Z≈   0  →  X = 0.0
+ *   Z≈ -10  →  X = 0.5
+ *   Z≈ -18  →  X = 1.7
+ *   Z≈ -25  →  X = 1.7
+ *   Z≈ -30  →  X = 3.0
+ *   Z≈ -35  →  X = 3.5
+ *   Z≈ -39  →  X = 3.5  (road terminus)
+ *
+ * Walls (wall1_panel, X: -2.5 .. 5.97) follow the same curve. A flat path
+ * at any single X lands on the centerline only in the middle of the
+ * corridor and clips into the right wall by the time the camera reaches
+ * Z=-30 — that was the off-center / wall-hugging look in the screenshots.
+ *
+ * The end waypoint stops just inside the Z=-39 road terminus to avoid
+ * punching through the back of the corridor at the end of the walk.
  */
 const WAYPOINTS: [number, number, number][] = [
-  [1.7, 2.2, 5],    // start: just outside the front of the street
-  [1.7, 2.2, -3],
-  [2.0, 2.2, -10],
-  [1.4, 2.2, -18],
-  [2.0, 2.2, -26],
-  [1.4, 2.2, -33],
-  [1.7, 2.2, -41],  // end: past the far edge so arrival feels final
+  [0.0, 2.2, 5],    // start: road centerline at the entrance is X=0
+  [0.1, 2.2, -2],
+  [0.6, 2.2, -10],
+  [1.6, 2.2, -18],
+  [2.4, 2.2, -25],
+  [3.0, 2.2, -30],
+  [3.4, 2.2, -35],
+  [3.4, 2.2, -38],  // end: just inside the road terminus
 ]
 
 export const cameraPath = new THREE.CatmullRomCurve3(

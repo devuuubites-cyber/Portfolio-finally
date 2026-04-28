@@ -16,7 +16,7 @@ export function SceneRoot() {
     <Canvas
       gl={{ antialias: false, powerPreference: "high-performance" }}
       dpr={[1, 1.5]}
-      camera={{ fov: 60, near: 0.05, far: 200, position: [1.7, 2.2, 5] }}
+      camera={{ fov: 60, near: 0.05, far: 500, position: [0.0, 2.2, 5] }}
       onCreated={({ gl, scene }) => {
         gl.setClearColor("#050505", 1)
         gl.outputColorSpace = THREE.SRGBColorSpace
