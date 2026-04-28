@@ -1,18 +1,24 @@
 import * as THREE from "three"
 
 /**
- * Camera waypoints in world space (model is in centimeters; ~640 across).
- * Slight X drift gives a natural "walking" feel; Y stays at eye level.
- * Z marches forward through the street. Tune as you walk the path.
+ * Camera waypoints in the model's own coordinate space.
+ *
+ * The OBJ's actual city geometry occupies a tiny volume:
+ *   X: -6 .. 9   (width ~15)
+ *   Y:  0 .. 14  (height ~14, ground at Y≈0)
+ *   Z: -39 .. 1  (length ~40, road runs from front Z=1 → back Z=-39)
+ *
+ * Camera walks down the street's long axis (+Z → -Z), staying centered on the
+ * road (X≈1.5) at eye-level (Y≈2.5). Slight X drift keeps the motion human.
  */
 const WAYPOINTS: [number, number, number][] = [
-  [0, 90, 280],
-  [-12, 92, 200],
-  [10, 88, 100],
-  [-8, 90, 0],
-  [12, 92, -100],
-  [-6, 88, -200],
-  [4, 90, -310],
+  [0.5, 2.6, 4],     // start: just outside the front of the street
+  [1.0, 2.6, -2],
+  [-0.4, 2.55, -10],
+  [1.6, 2.6, -18],
+  [-0.2, 2.55, -26],
+  [1.2, 2.6, -33],
+  [0.6, 2.6, -41],   // end: past the far edge so arrival feels final
 ]
 
 export const cameraPath = new THREE.CatmullRomCurve3(
@@ -27,7 +33,3 @@ export const LOOK_AHEAD = 0.02
 
 /** Smoothing factor for raw → eased scroll. Lower = more inertia. */
 export const SCROLL_LERP = 0.06
-
-/** Clamp the visible scroll range so users don't run past the path. */
-export const PATH_HEAD_PAD = 0.0
-export const PATH_TAIL_PAD = 0.0
