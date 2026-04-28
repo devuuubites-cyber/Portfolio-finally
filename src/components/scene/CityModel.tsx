@@ -72,10 +72,16 @@ function pinTexture(tex: THREE.Texture | null | undefined) {
   tex.needsUpdate = true
 }
 
+// Sky materials live on a giant cube ~320 units from the origin — far past
+// the scene fog (5..35) which would otherwise consume them into ink. Disable
+// fog on the sky so the cubemap reads as actual sky behind the foggy street.
+const SKY_MATERIAL_NAMES = new Set(["sky_sides", "sky_up", "sky_down"])
+
 function convertToBasic(src: THREE.Material): THREE.Material {
   if (src instanceof THREE.MeshBasicMaterial) {
     pinTexture(src.map)
     pinTexture(src.alphaMap)
+    if (SKY_MATERIAL_NAMES.has(src.name)) src.fog = false
     return src
   }
 
@@ -90,6 +96,7 @@ function convertToBasic(src: THREE.Material): THREE.Material {
     alphaMap: phong.alphaMap ?? null,
   })
   basic.name = phong.name
+  if (SKY_MATERIAL_NAMES.has(basic.name)) basic.fog = false
   pinTexture(basic.map)
   pinTexture(basic.alphaMap)
   src.dispose()
