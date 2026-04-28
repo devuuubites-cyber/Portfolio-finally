@@ -5,9 +5,9 @@ import { CityModel } from "./CityModel"
 import { ScrollCamera } from "./ScrollCamera"
 import { SceneLoader } from "./SceneLoader"
 
-// Fog distances are in the model's own units. The actual street geometry
-// runs ~40 units long, so fog 5 → 35 lets the user see a few segments
-// ahead while the far end fades cleanly into ink.
+// Fog distances are in the model's own units. The street geometry runs ~40
+// units long, so fog 5 → 35 lets the user see a few segments ahead while the
+// far end fades cleanly into ink.
 const FOG_NEAR = 5
 const FOG_FAR = 35
 
@@ -16,7 +16,7 @@ export function SceneRoot() {
     <Canvas
       gl={{ antialias: false, powerPreference: "high-performance" }}
       dpr={[1, 1.5]}
-      camera={{ fov: 60, near: 0.05, far: 200, position: [0.5, 2.6, 4] }}
+      camera={{ fov: 60, near: 0.05, far: 200, position: [1.7, 2.2, 5] }}
       onCreated={({ gl, scene }) => {
         gl.setClearColor("#050505", 1)
         gl.outputColorSpace = THREE.SRGBColorSpace

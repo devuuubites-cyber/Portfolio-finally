@@ -3,22 +3,24 @@ import * as THREE from "three"
 /**
  * Camera waypoints in the model's own coordinate space.
  *
- * The OBJ's actual city geometry occupies a tiny volume:
- *   X: -6 .. 9   (width ~15)
- *   Y:  0 .. 14  (height ~14, ground at Y≈0)
- *   Z: -39 .. 1  (length ~40, road runs from front Z=1 → back Z=-39)
+ * Per-material bbox of the OBJ confirms the walkable corridor:
+ *   road:        X: -1.0 .. 4.47, Y: 0,        Z: -39 .. 1
+ *   wall_panel:  X: -2.5 .. 5.97, Y: 0  .. 7,  Z: -39 .. 1
+ *   ceiling:     X: -2.0 .. 8.32, Y: 0  .. 6.10
  *
- * Camera walks down the street's long axis (+Z → -Z), staying centered on the
- * road (X≈1.5) at eye-level (Y≈2.5). Slight X drift keeps the motion human.
+ * Road centerline is X≈1.7. Walls clamp X to roughly [-1, 4.5] for safety.
+ * The camera hugs the centerline (drifts 1.4..2.0) at eye-level Y=2.2 — well
+ * under the 6.10 ceiling, well above the Y=0 road. Catmull-Rom would overshoot
+ * a wider zigzag into the walls, so the X drift here is deliberately gentle.
  */
 const WAYPOINTS: [number, number, number][] = [
-  [0.5, 2.6, 4],     // start: just outside the front of the street
-  [1.0, 2.6, -2],
-  [-0.4, 2.55, -10],
-  [1.6, 2.6, -18],
-  [-0.2, 2.55, -26],
-  [1.2, 2.6, -33],
-  [0.6, 2.6, -41],   // end: past the far edge so arrival feels final
+  [1.7, 2.2, 5],    // start: just outside the front of the street
+  [1.7, 2.2, -3],
+  [2.0, 2.2, -10],
+  [1.4, 2.2, -18],
+  [2.0, 2.2, -26],
+  [1.4, 2.2, -33],
+  [1.7, 2.2, -41],  // end: past the far edge so arrival feels final
 ]
 
 export const cameraPath = new THREE.CatmullRomCurve3(
