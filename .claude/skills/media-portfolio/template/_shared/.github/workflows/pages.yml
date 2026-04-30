@@ -1,0 +1,50 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Lets the action push to the gh-pages branch with the default GITHUB_TOKEN.
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-publish:
+    name: build & publish gh-pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Vite must emit asset URLs prefixed with /<repo>/ so they resolve
+      # under the GitHub Pages project subpath.
+      - name: Build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+        run: npm run build
+
+      # SPA fallback: GitHub Pages serves the 404 page on unknown routes,
+      # so duplicating index.html lets deep links still hydrate the app.
+      - run: cp dist/index.html dist/404.html
+
+      # Publishes the contents of `dist/` to the `gh-pages` branch on every
+      # push to main. Pair with: Settings → Pages → Source: Deploy from a
+      # branch → Branch: gh-pages → Folder: / (root).
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: "deploy: ${{ github.event.head_commit.message }}"

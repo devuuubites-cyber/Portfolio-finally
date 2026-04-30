@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overscroll-behavior: none;
+  }
+
+  html {
+    background: #050505;
+  }
+
+  body {
+    margin: 0;
+    /* Native scroll on a tall invisible spacer drives camera progress.
+       We hide the scrollbar so the chrome stays cinematic; ProgressBar
+       (top hairline) communicates position instead. */
+    cursor: default;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scrollbar-width: none;
+  }
+
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Always-on scroll behavior: smooth interpolation lives in JS, not CSS. */
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* Prevent pixel-art textures from blurring during browser-side scaling. */
+  canvas {
+    image-rendering: pixelated;
+  }
+
+  ::selection {
+    background: rgba(155, 184, 134, 0.35);
+    color: #f4efe6;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(10, 10, 10, 0.35);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(244, 239, 230, 0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(244, 239, 230, 0.06),
+      0 8px 30px rgba(0, 0, 0, 0.45);
+  }
+
+  .glass-soft {
+    background: rgba(10, 10, 10, 0.22);
+    backdrop-filter: blur(12px) saturate(130%);
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
+    border: 1px solid rgba(244, 239, 230, 0.06);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .display-edge {
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 0, 0, 0.3);
+  }
+}
