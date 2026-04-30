@@ -87,17 +87,28 @@ For **3D models**:
 For **video**:
 - a) **Scroll-scrubbed full-bleed** — `currentTime` bound to scroll
   progress, content overlays at chosen progress points.
-- b) **Pinned hero loop** — silent autoplay loop in a hero, page scrolls
+- b) **Cinematic reveal** — looping background video, a scroll-driven
+  `clipPath` ellipse opens to expose an orbit gallery overlay, with
+  scroll-bound typography timelines (per-character animated heading,
+  liquid-glass surfaces, Framer Motion). Premium luxury landing page.
+- c) **Pinned hero loop** — silent autoplay loop in a hero, page scrolls
   past *(coming soon — falls back to scrub).*
-- c) **Cuts at section boundaries** — video advances to specific timestamps
+- d) **Cuts at section boundaries** — video advances to specific timestamps
   per section *(coming soon — falls back to scrub).*
-- d) **Background ambient** — full-bleed muted loop behind a text layout
+- e) **Background ambient** — full-bleed muted loop behind a text layout
   *(coming soon — falls back to scrub).*
 
 The chosen role determines which `template/<variant>/` directory gets
 copied. Implemented variants in v1:
-- `3d-walk` (3D option a)
-- `video-scrub` (video option a)
+- `3d-walk` (3D option a) — Tailwind v3, R3F, the Twinkling Glade pattern.
+- `video-scrub` (video option a) — Tailwind v3, native `<video>` +
+  shared scroll bus.
+- `cinematic-reveal` (video option b) — **Tailwind v4** via
+  `@tailwindcss/vite`, Framer Motion (`motion/react`), Instrument
+  Serif + Manrope + Great Vibes via Google Fonts, ships the
+  `OrbitImages`, `AnimatedHeading`, `FadeIn` primitives and the
+  `liquid-glass` utility class. Scroll math values in this variant
+  are **frozen** — see `architecture.md`.
 
 Other roles route to the closest implemented variant and the skill must
 inform the user of the substitution before proceeding.
@@ -203,18 +214,31 @@ cd <slug>
 
 Install deps based on chosen role:
 
-- **Always:** `react react-dom tailwindcss postcss autoprefixer
-  tailwindcss-animate zustand clsx tailwind-merge class-variance-authority
-  lucide-react @radix-ui/react-dialog @radix-ui/react-slot`.
-- **3D variants (`3d-walk`):** add `three @react-three/fiber
-  @react-three/drei @types/three`.
-- **Video variants (`video-scrub`):** no extra deps — uses native
-  `<video>` plus the shared scroll bus.
-- **Fonts:** `@fontsource/<chosen-display>`, `@fontsource/<chosen-body>`
-  if the packages exist on npm. If not, write a Google Fonts `<link>`
-  into `index.html` and document this in the project README.
+- **3d-walk and video-scrub** (Tailwind v3 base):
+  - Always: `react react-dom tailwindcss@^3 postcss autoprefixer
+    tailwindcss-animate zustand clsx tailwind-merge
+    class-variance-authority lucide-react @radix-ui/react-dialog
+    @radix-ui/react-slot`.
+  - 3d-walk adds: `three @react-three/fiber @react-three/drei @types/three`.
+  - video-scrub adds nothing — native `<video>` + shared scroll bus.
+  - Fonts: `@fontsource/<chosen-display>` and `@fontsource/<chosen-body>`
+    if the packages exist; otherwise a Google Fonts `<link>` in
+    `index.html` (document the choice in the project README).
+  - Run `npx tailwindcss init -p`.
 
-Run `npx tailwindcss init -p`.
+- **cinematic-reveal** (Tailwind v4 base, do **not** mix with v3):
+  - `npm install motion react react-dom lucide-react`
+  - `npm install -D tailwindcss @tailwindcss/vite`
+  - Wire `@tailwindcss/vite` in `vite.config.ts` (the template ships
+    a config that already does this).
+  - No `tailwind.config.ts`, no `postcss.config.js` — Tailwind v4 reads
+    `@theme` blocks directly from `src/index.css`.
+  - Fonts come from a Google Fonts `@import` at the top of
+    `src/index.css`. The default cinematic stack is **Instrument
+    Serif + Manrope + Great Vibes**, but Round 5b can substitute a
+    different mood-matched pair from `typography.md` and the skill
+    rewrites the `@import` line and the `--font-*` variables in the
+    `@theme` block accordingly.
 
 ### Step 9 — Copy templates
 
@@ -253,6 +277,26 @@ For **video-scrub**:
 - Copy the video into `public/media/<slug>/`.
 - Set `VIDEO_URL` and `VIDEO_DURATION` in
   `src/components/media/ScrubbedVideo.tsx` from analyzer output.
+
+For **cinematic-reveal**:
+- Copy the video into `public/media/<slug>/`.
+- Rewrite the `<source src="...">` in `src/App.tsx` to point at the
+  vendored video (no Cloudinary CDN URL).
+- Replace the placeholder `orbitImagesData` array with paths under
+  `/orbit/` (or with the analyzer keyframes copied to
+  `public/orbit/`). At least 4 images are required; 6 is ideal.
+- Replace the brand `<text>` in the corner SVG with the user's display
+  name (preserve the `©` superscript pattern).
+- Replace the heading copy ("Master the Elements", "embrace") with the
+  user's tagline + subhead from Round 4.
+- Replace `2K26` / `0651` / "JOIN AN EXCLUSIVE COMMUNITY" / etc. with
+  user-supplied edition number, year, and CTA text. If the user
+  doesn't provide them, ask in a follow-up round before scaffolding.
+- **Do not modify** the scroll-progress arrays in `App.tsx` — the
+  numeric values are tuned and frozen (see `architecture.md`).
+- If the user picked a different palette in Round 5c, update the
+  `--font-*` variables and the inline `fill="#FDFFB7"` brand color
+  to match. Body text stays black on the reveal-white surface.
 
 For both: if portfolio content was provided in Round 4, write a one-shot
 `<script>` into `index.html` that pre-seeds `localStorage` so the
